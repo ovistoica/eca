@@ -260,6 +260,26 @@
   
   
   
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../install/" class="md-tabs__link">
+          
+  
+  
+  Install
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
     
   
   
@@ -564,6 +584,104 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../read-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Read Chat CLI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Install
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Install
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install ECA
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -596,10 +714,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
@@ -612,8 +730,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Configuration
           </label>
@@ -773,6 +891,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Commands
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -784,6 +915,34 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#frontmatter-description-and-named-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontmatter: description and named arguments
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1135,6 +1294,23 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#frontmatter-description-and-named-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontmatter: description and named arguments
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1155,7 +1331,7 @@
 <h1 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">#</a></h1>
 <p><img alt="" src="../../images/features/commands.png" /></p>
 <p>You can configure custom command prompts for project, global or via <code>commands</code> config pointing to the path of the commands.
-Prompts can use variables like <code>$ARGUMENTS</code>, <code>$1</code>, <code>$2</code>, to replace in the prompt during command call.</p>
+Prompts can use positional variables like <code>$ARGUMENTS</code>, <code>$1</code>, <code>$2</code>, or <a href="#frontmatter-description-and-named-arguments">named <code>{{name}}</code> variables</a>, to replace in the prompt during command call.</p>
 <div class="admonition tip">
 <p class="admonition-title">Skills support arguments too</p>
 <p><a href="../skills/#parameterized-skills">Skills</a> also support the same variable substitution when invoked as slash commands, e.g. <code>/review-pr URL</code>.</p>
@@ -1176,15 +1352,42 @@ Prompts can use variables like <code>$ARGUMENTS</code>, <code>$1</code>, <code>$
 <p>ECA will make available a <code>/check-performance</code> command after creating that file.</p>
 </div>
 <div class="tabbed-block">
-<p>Just add to your config the <code>commands</code> pointing to <code>.md</code> files that will be searched from the workspace root if not an absolute path:</p>
+<p>Add to your config the <code>commands</code> key. <code>path</code> can point to a single <code>.md</code> file or a directory. Directories load markdown files recursively. Relative paths are searched from each workspace root if not an absolute path:</p>
 <div class="highlight"><span class="filename">~/.config/eca/config.json</span><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="s2">&quot;commands&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-custom-prompt.md&quot;</span><span class="p">}]</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>ECA will make available a <code>/my-custom-prompt</code> command after creating that file.</p>
+<div class="highlight"><span class="filename">~/.config/eca/config.json</span><pre><span></span><code><span class="c1">// Load all command files from a directory recursively</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="s2">&quot;commands&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="s2">&quot;path&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/home/user/commands&quot;</span><span class="p">}]</span>
+<span class="p">}</span>
+</code></pre></div>
 </div>
 </div>
 </div>
+<h2 id="frontmatter-description-and-named-arguments">Frontmatter: description and named arguments<a class="headerlink" href="#frontmatter-description-and-named-arguments" title="Permanent link">#</a></h2>
+<p>A command file may start with optional YAML frontmatter to set a human-readable <code>description</code> (shown in the command list instead of the file path) and to declare named arguments.</p>
+<p>Use <code>{{name}}</code> placeholders in the body to define named arguments. When a command uses named placeholders, ECA renders the body with <a href="https://github.com/yogthos/Selmer">Selmer</a>, mapping the call arguments to the placeholders in the order they first appear:</p>
+<div class="highlight"><span class="filename">.eca/commands/weather.md</span><pre><span></span><code>---
+description: Generate a weather report
+arguments:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>name: city
+    description: City to report on
+    required: true
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>name: units
+    description: metric or imperial
+<span class="gu">    required: false</span>
+<span class="gu">---</span>
+Write a weather report for {{city}} using {{units}} units.
+</code></pre></div>
+<p>Calling <code>/weather Paris metric</code> renders <code>Write a weather report for Paris using metric units.</code></p>
+<p>Notes:</p>
+<ul>
+<li>The <code>arguments</code> list is optional and only attaches <code>description</code>/<code>required</code> metadata that editors use when prompting for values. Named arguments default to <code>required: true</code>; set <code>required: false</code> to make one optional.</li>
+<li>For positional commands (<code>$1</code>, <code>$ARG1</code>), <code>arguments</code> entries are matched by position, letting you name and describe each placeholder.</li>
+<li>Positional (<code>$1</code>/<code>$ARGS</code>) and named (<code>{{name}}</code>) placeholders cannot be mixed in the same command; such files are ignored.</li>
+<li>Commands without frontmatter keep working exactly as before.</li>
+</ul>
 
 
 
@@ -1205,7 +1408,7 @@ Prompts can use variables like <code>$ARGUMENTS</code>, <code>$1</code>, <code>$
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 6, 2026 21:28:35 UTC">April 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 13, 2026 15:56:27 UTC">June 13, 2026</span>
   </span>
 
     

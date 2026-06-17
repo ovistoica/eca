@@ -260,6 +260,26 @@
   
   
   
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../install/" class="md-tabs__link">
+          
+  
+  
+  Install
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
     
   
   
@@ -564,6 +584,104 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../read-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Read Chat CLI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Install
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Install
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install ECA
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -596,10 +714,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
@@ -612,8 +730,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Configuration
           </label>
@@ -1267,11 +1385,18 @@
 <h1 id="agents-subagents">Agents / Subagents<a class="headerlink" href="#agents-subagents" title="Permanent link">#</a></h1>
 <p><img alt="" src="../../images/features/chat-agents.png" /></p>
 <p>When using ECA chat, you can choose which agent it will use, each allows you to customize its system prompt, tool call approvals, disabled tools, default model, skills and more.</p>
-<p>There are 2 types of agents defined via <code>mode</code> field (when absent, defaults to primary):</p>
+<p>Agents have a <code>mode</code> field that controls where they can be used. It accepts either a single string or a list:</p>
 <ul>
-<li><code>primary</code>: main agents, used in chat, can spawn subagents.</li>
+<li><code>primary</code>: main agent, used in chat, can spawn subagents.</li>
 <li><code>subagent</code>: an agent allowed to be spawned inside a chat to do a specific task and return a output to the primary agent.</li>
 </ul>
+<p>Examples:</p>
+<ul>
+<li><code>mode: "primary"</code> — only selectable as a chat agent.</li>
+<li><code>mode: "subagent"</code> — only spawnable by another agent.</li>
+<li><code>mode: ["primary", "subagent"]</code> — usable in both roles.</li>
+</ul>
+<p>When <code>mode</code> is not set, the agent is usable in both roles (equivalent to <code>["primary", "subagent"]</code>).</p>
 <h2 id="built-in-agents">Built-in agents<a class="headerlink" href="#built-in-agents" title="Permanent link">#</a></h2>
 <table>
 <thead>
@@ -1332,7 +1457,7 @@ description: Explorer with a custom model
 </div>
 </div>
 <h2 id="custom-agents-and-prompts">Custom agents and prompts<a class="headerlink" href="#custom-agents-and-prompts" title="Permanent link">#</a></h2>
-<p>You can create an agent and define its prompt, tool call approval and default model.</p>
+<p>You can create an agent and define its prompt, tool call approval and default model. Custom prompts can use <a href="../introduction/#templates">template variables</a>.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="example-my-agent" name="__tabbed_2" type="radio" /><input id="example-overriding-a-tool-description" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="example-my-agent">Example: my-agent</label><label for="example-overriding-a-tool-description">Example: Overriding a tool description</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1369,7 +1494,7 @@ description: Explorer with a custom model
 </ul>
 <p>Subagents can be configured in config or markdown and support/require these fields:</p>
 <ul>
-<li><code>mode</code> (required): <code>subagent</code> always, this is what differs a primary agent from a subagent for ECA.</li>
+<li><code>mode</code>: set to <code>"subagent"</code> (or <code>["subagent"]</code>) to restrict an agent to subagent use only. Omit or include <code>"primary"</code> to also allow chat use.</li>
 <li><code>description</code> (required): a short summary of what this subagent will do, this is important to primary agent knows when to delegate to it.</li>
 <li>
 <p><code>systemPrompt</code> or the markdown content (required unless using <code>inherit</code>): Instructions for the subagent to what do when receive a task.</p>
@@ -1399,6 +1524,30 @@ tools:
 
 You should run sleep 1 and return &quot;I slept 1 second&quot;
 </code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Agent id</p>
+<p>The agent id (the key under <code>agent</code>) is taken from the YAML <code>name:</code> field when present (trimmed and lowercased). Otherwise it falls back to the filename with all extensions stripped, so <code>architect.agent.md</code> becomes <code>architect</code>. This keeps Claude Code / OpenCode plugin agent files working without renaming.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Pattern-based tool approval in markdown</p>
+<p>You can append a regex pattern in parentheses after a tool name to restrict approval to calls matching the pattern. Currently only <code>eca__shell_command</code> supports this — the pattern is matched against its <code>command</code> argument. Multiple entries for the same tool are automatically merged.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">tools</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">allow</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eca__shell_command(npm run .*)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eca__shell_command(git diff(\s+.*)?)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eca__read_file</span>
+</code></pre></div>
+<p>This is equivalent to <code>argsMatchers</code> in JSON config. Patterns on tools other than <code>eca__shell_command</code> are currently ignored.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Claude-compatible tools list</p>
+<p>For Claude Code / OpenCode plugin compatibility, <code>tools</code> can also be given as a flat YAML list. It is treated as <code>byDefault: ask</code> plus the list as <code>allow</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">tools</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eca__read_file</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eca__grep</span>
+</code></pre></div>
+<p>The entries must be ECA tool ids for the allowlist to take effect; unknown names are accepted but will not match any real tool.</p>
+</div>
 <div class="admonition info">
 <p class="admonition-title">Tool call approval</p>
 <p>For more complex tool call approval, use toolCall via config</p>
@@ -1441,7 +1590,7 @@ You should run sleep 1 and return &quot;I slept 1 second&quot;
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 6, 2026 21:28:35 UTC">April 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 13, 2026 15:56:27 UTC">June 13, 2026</span>
   </span>
 
     

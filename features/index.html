@@ -266,6 +266,26 @@
     
     
       <li class="md-tabs__item">
+        <a href="../install/" class="md-tabs__link">
+          
+  
+  
+  Install
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
         <a href="../config/introduction/" class="md-tabs__link">
           
   
@@ -710,6 +730,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#flags-on-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flags on messages
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -774,6 +803,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../read-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Read Chat CLI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -811,7 +863,7 @@
   
   
   <span class="md-ellipsis">
-    Configuration
+    Install
     
   </span>
   
@@ -821,6 +873,81 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Install
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install ECA
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Configuration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Configuration
           </label>
@@ -1471,6 +1598,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#flags-on-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flags on messages
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1608,6 +1744,7 @@ It supports both MCP server tools + ECA native tools.</p>
 <p><img src="../images/features/contexts-files.gif" width="600"></p>
 <h4 id="agentsmd-automatic-context">AGENTS.md automatic context<a class="headerlink" href="#agentsmd-automatic-context" title="Permanent link">#</a></h4>
 <p>ECA will always include if found the <code>AGENTS.md</code> file as context, searching for both <code>/project-root/AGENTS.md</code> and <code>~/.config/eca/AGENTS.md</code>, it will recursively check for any <code>@some-file.md</code> mention as well.</p>
+<p>Set the config flag <code>includeParentAgentsFiles</code> to <code>true</code> to also include <code>AGENTS.md</code> files from each workspace's parent directories (up to the filesystem root). Files are emitted outermost parent first, then descending toward the workspace's own <code>AGENTS.md</code>, and duplicates across overlapping workspaces are skipped. The flag is disabled by default.</p>
 <p>You can ask ECA to create/update this file via <code>/init</code> command.
 you can check/debug what goes to final prompt with <code>/prompt-show</code> as well.</p>
 <h3 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">#</a></h3>
@@ -1617,13 +1754,16 @@ you can check/debug what goes to final prompt with <code>/prompt-show</code> as 
 <ul>
 <li><code>/init</code>: Create/update the AGENTS.md file with details about the workspace for best LLM output quality.</li>
 <li><code>/login</code>: Log into a provider. Ex: <code>github-copilot</code>, <code>anthropic</code>.</li>
+<li><code>/model</code>: Select model for current chat directly from chat. Ex: <code>anthropic/claude-sonnet-4-6</code>.</li>
 <li><code>/skills</code>: List known skills that ECA can load.</li>
+<li><code>/hooks</code>: List active hooks grouped by type, showing name, description, and matcher.</li>
 <li><code>/compact</code>: Compact/summarize conversation helping reduce context window.</li>
 <li><code>/resume</code>: Resume a chat from previous session of this workspace folder.</li>
 <li><code>/costs</code>: Show costs about current session.</li>
 <li><code>/config</code>: Show ECA config for troubleshooting.</li>
 <li><code>/doctor</code>: Show information about ECA, useful for troubleshooting.</li>
 <li><code>/repo-map-show</code>: Show the current repoMap context of the session.</li>
+<li><code>/debug-chat</code>: Dump the current chat (obfuscated) to a file for debugging a corrupted/stuck chat.</li>
 <li><code>/prompt-show</code>: Show the final prompt sent to LLM with all contexts and ECA details.</li>
 </ul>
 <div class="admonition info">
@@ -1645,6 +1785,9 @@ you can check/debug what goes to final prompt with <code>/prompt-show</code> as 
 <p>Hooks are actions that can run before or after an specific event, useful to notify after prompt finished or to block a tool call doing some check in a script.</p>
 <p><img alt="" src="../images/features/hooks.png" /></p>
 <p>For more details, check <a href="../config/hooks/">hooks configuration</a>.</p>
+<h3 id="flags-on-messages">Flags on messages<a class="headerlink" href="#flags-on-messages" title="Permanent link">#</a></h3>
+<p><img alt="" src="../images/features/chat-flag.png" /></p>
+<p>You can add flags in between messages so you can fork from there in the future, flags are saved by chat.</p>
 <h2 id="rewrite">Rewrite<a class="headerlink" href="#rewrite" title="Permanent link">#</a></h2>
 <p>Rewrite allows user to select part of the text and ask ECA to rewrite it.</p>
 <p>This is useful for quick LLM instructions to apply to code where you don't need to over control context or prompt too much, </p>
@@ -1678,7 +1821,7 @@ you can check/debug what goes to final prompt with <code>/prompt-show</code> as 
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 6, 2026 21:28:35 UTC">April 6, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 13, 2026 15:56:27 UTC">June 13, 2026</span>
   </span>
 
     

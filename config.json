@@ -13,6 +13,22 @@
       "description": "JSON Schema reference for editor validation support.",
       "markdownDescription": "JSON Schema reference for editor validation support."
     },
+    "extraConfigs": {
+      "type": "array",
+      "description": "Additional config file paths (relative to workspace root or absolute, ~ supported) deep merged last, overriding all other config sources. Missing paths are logged and skipped.",
+      "markdownDescription": "Additional config file paths (relative to workspace root or absolute, `~` supported) deep merged last, overriding all other config sources. Missing paths are logged and skipped.\n\nUseful for machine-specific or uncommitted overrides, e.g. `~/.config/eca/config.local.json` or `.eca/config.local.json`.",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        [
+          "~/.config/eca/config.local.json"
+        ],
+        [
+          ".eca/config.local.json"
+        ]
+      ]
+    },
     "providers": {
       "type": "object",
       "description": "LLM provider configurations. Each key is the provider name.",
@@ -85,8 +101,8 @@
         "properties": {
           "path": {
             "type": "string",
-            "description": "Path to a rule file (relative to workspace root or absolute).",
-            "markdownDescription": "Path to a rule file (relative to workspace root or absolute)."
+            "description": "Path to a rule file or directory (relative to workspace root or absolute). Directories are loaded recursively.",
+            "markdownDescription": "Path to a rule file or directory (relative to workspace root or absolute). Directories are loaded recursively."
           }
         },
         "required": [
@@ -112,8 +128,27 @@
         "properties": {
           "path": {
             "type": "string",
-            "description": "Path to a command prompt markdown file.",
-            "markdownDescription": "Path to a command prompt markdown file."
+            "description": "Path to a command prompt markdown file or directory. Directories load markdown files recursively.",
+            "markdownDescription": "Path to a command prompt markdown file or directory. Directories load markdown files recursively."
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "skills": {
+      "type": "array",
+      "description": "Skill files or directories to load.",
+      "markdownDescription": "Skill files or directories to load.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to a skill file or directory. Directories load SKILL.md files recursively.",
+            "markdownDescription": "Path to a skill file or directory. Directories load SKILL.md files recursively."
           }
         },
         "required": [
@@ -138,6 +173,12 @@
       "description": "Timeout in seconds for MCP server operations.",
       "markdownDescription": "Timeout in seconds for MCP server operations.",
       "default": 60
+    },
+    "mcpKeepAliveSeconds": {
+      "type": "integer",
+      "description": "Interval in seconds between keep-alive pings to remote MCP servers, preventing idle connections from being dropped by proxies. Set 0 to disable.",
+      "markdownDescription": "Interval in seconds between keep-alive pings to remote MCP servers, preventing idle connections from being dropped by proxies. Set 0 to disable.",
+      "default": 30
     },
     "lspTimeoutSeconds": {
       "type": "integer",
@@ -174,6 +215,12 @@
       "minimum": 0,
       "maximum": 100,
       "default": 75
+    },
+    "includeParentAgentsFiles": {
+      "type": "boolean",
+      "description": "When true, also include AGENTS.md files from each workspace folder's parent directories, ordered outermost parent first, then the workspace's own AGENTS.md.",
+      "markdownDescription": "When `true`, also include `AGENTS.md` files from each workspace folder's parent directories, ordered outermost parent first, then the workspace's own `AGENTS.md`.",
+      "default": false
     },
     "index": {
       "type": "object",
@@ -251,6 +298,12 @@
             "openai/gpt-4.1",
             "github-copilot/gpt-4.1"
           ]
+        },
+        "fullFileMaxLines": {
+          "type": "integer",
+          "description": "Maximum number of lines of the target file to inline as context in the rewrite prompt. When the file exceeds this, a window of this many lines centered on the selection is used instead.",
+          "markdownDescription": "Maximum number of lines of the target file to inline as context in the rewrite prompt. When the file exceeds this, a window of this many lines centered on the selection is used instead.",
+          "default": 2000
         }
       }
     },
@@ -290,6 +343,12 @@
           "description": "Whether to automatically generate a title for new chats.",
           "markdownDescription": "Whether to automatically generate a title for new chats.",
           "default": true
+        },
+        "defaultTrust": {
+          "type": "boolean",
+          "description": "Whether new chats start in trust mode, auto-accepting all tool calls (never overriding deny). Applies to all editors.",
+          "markdownDescription": "Whether new chats start in trust mode, auto-accepting all tool calls (never overriding `deny`). Applies to all editors.",
+          "default": false
         }
       }
     },
@@ -357,11 +416,20 @@
         },
         "host": {
           "type": "string",
-          "description": "Host used in the logged URL for web.eca.dev to connect back to. Can be a LAN IP, public IP, domain, or tunnel URL. When unset, auto-detected via InetAddress/getLocalHost.",
-          "markdownDescription": "Host used in the logged URL for `web.eca.dev` to connect back to. Can be a LAN IP, public IP, domain, or tunnel URL. When unset, auto-detected via `InetAddress/getLocalHost`.",
+          "description": "Host used in the logged URL for web.eca.dev to connect back to. Can be a LAN IP, public IP, domain, or tunnel URL. When unset, auto-detected via InetAddress/getLocalHost. This is display-only and does not affect which interface the server binds to (see bindHost).",
+          "markdownDescription": "Host used in the logged URL for `web.eca.dev` to connect back to. Can be a LAN IP, public IP, domain, or tunnel URL. When unset, auto-detected via `InetAddress/getLocalHost`. This is display-only and does not affect which interface the server binds to (see `bindHost`).",
           "examples": [
             "192.168.1.42",
             "myserver.example.com"
+          ]
+        },
+        "bindHost": {
+          "type": "string",
+          "description": "Network interface the HTTP server binds to. When unset, ECA auto-detects. Set this to pin the server to a specific interface — e.g. a Tailscale/WireGuard IP, or '0.0.0.0' to bind all interfaces.",
+          "markdownDescription": "Network interface the HTTP server binds to. When unset, ECA auto-detects. Set this to pin the server to a specific interface — e.g. a Tailscale/WireGuard IP, or `0.0.0.0` to bind all interfaces.",
+          "examples": [
+            "100.101.146.110",
+            "0.0.0.0"
           ]
         },
         "port": {
@@ -450,6 +518,17 @@
           "items": {
             "type": "string"
           }
+        },
+        "api": {
+          "type": [
+            "string",
+            "array"
+          ],
+          "description": "Restrict variants to the given API type(s). String for exact match, array for any-of. Absent = match all.",
+          "markdownDescription": "Restrict variants to the given API type(s). String for exact match, array for any-of. Absent = match all.",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false
@@ -466,7 +545,8 @@
           "enum": [
             "openai-responses",
             "openai-chat",
-            "anthropic"
+            "anthropic",
+            "bedrock"
           ]
         },
         "fetchModels": {
@@ -476,8 +556,8 @@
         },
         "url": {
           "type": "string",
-          "description": "Base URL for the provider's API. Supports dynamic strings like ${env:VAR}.",
-          "markdownDescription": "Base URL for the provider's API. Supports dynamic strings like ${env:VAR}.",
+          "description": "Base URL for the provider's API. Supports dynamic strings like ${env:VAR} or ${cmd:command}.",
+          "markdownDescription": "Base URL for the provider's API. Supports dynamic strings like `${env:VAR}` or `${cmd:command}`.",
           "format": "uri"
         },
         "key": {
@@ -485,8 +565,8 @@
             "string",
             "null"
           ],
-          "description": "API key for authentication. Supports dynamic strings like ${env:MY_API_KEY}.",
-          "markdownDescription": "API key for authentication. Supports dynamic strings like ${env:MY_API_KEY}."
+          "description": "API key for authentication. Supports dynamic strings like ${env:MY_API_KEY}, ${netrc:host} or ${cmd:pass show eca/api-key}. Takes precedence over login/OAuth auth (including when resolved from a <PROVIDER>_API_KEY env var), so it can incur paid API usage even when logged in.",
+          "markdownDescription": "API key for authentication. Supports dynamic strings like `${env:MY_API_KEY}`, `${netrc:host}` or `${cmd:pass show eca/api-key}`. Takes precedence over login/OAuth auth (including when resolved from a `<PROVIDER>_API_KEY` env var), so it can incur paid API usage even when logged in."
         },
         "keyRc": {
           "type": "string",
@@ -497,6 +577,26 @@
           "type": "boolean",
           "description": "Whether this provider requires authentication.",
           "markdownDescription": "Whether this provider requires authentication."
+        },
+        "auth": {
+          "type": "object",
+          "description": "Authentication endpoint overrides for providers that use OAuth device flow. Used when the provider's identity server differs from the default (e.g. enterprise or self-hosted instances).",
+          "markdownDescription": "Authentication endpoint overrides for providers that use OAuth device flow. Used when the provider's identity server differs from the default (e.g. enterprise or self-hosted instances).",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "Base URL of the identity provider. OAuth device-flow endpoints are derived from this URL.",
+              "markdownDescription": "Base URL of the identity provider. OAuth device-flow endpoints are derived from this URL.",
+              "format": "uri",
+              "examples": ["https://github.mycompany.com"]
+            },
+            "clientId": {
+              "type": "string",
+              "description": "OAuth client ID to use for the device-flow. Defaults to the provider's public client ID when omitted.",
+              "markdownDescription": "OAuth client ID to use for the device-flow. Defaults to the provider's public client ID when omitted."
+            }
+          }
         },
         "completionUrlRelativePath": {
           "type": "string",
@@ -559,6 +659,13 @@
           "additionalProperties": {
             "$ref": "#/definitions/model"
           }
+        },
+        "cacheRetention": {
+          "type": "string",
+          "description": "Prompt cache retention for Anthropic. 'short' uses 5-min TTL (default), 'long' uses 1-hour TTL at higher write cost. Only applies when hitting the direct Anthropic API.",
+          "markdownDescription": "Prompt cache retention for Anthropic. `short` uses 5-min TTL (default), `long` uses 1-hour TTL at higher write cost. Only applies when hitting the direct Anthropic API.",
+          "enum": ["short", "long"],
+          "default": "short"
         }
       },
       "additionalProperties": false
@@ -598,6 +705,52 @@
           ],
           "default": "all"
         },
+        "limit": {
+          "type": "object",
+          "description": "Override the model's token limits (overrides models.dev). Useful for local models or to cap a known model's context window.",
+          "markdownDescription": "Override the model's token limits (overrides models.dev). Useful for local models or to cap a known model's context window.",
+          "properties": {
+            "context": {
+              "type": "integer",
+              "description": "Context window size in tokens (drives the usage display and auto-compaction).",
+              "markdownDescription": "Context window size in tokens (drives the usage display and auto-compaction)."
+            },
+            "output": {
+              "type": "integer",
+              "description": "Maximum output tokens.",
+              "markdownDescription": "Maximum output tokens."
+            }
+          },
+          "additionalProperties": false
+        },
+        "cost": {
+          "type": "object",
+          "description": "Override the model's pricing (overrides models.dev). Costs are per 1M tokens.",
+          "markdownDescription": "Override the model's pricing (overrides models.dev). Costs are per 1M tokens.",
+          "properties": {
+            "input": {
+              "type": "number",
+              "description": "Cost per 1M input tokens.",
+              "markdownDescription": "Cost per 1M input tokens."
+            },
+            "output": {
+              "type": "number",
+              "description": "Cost per 1M output tokens.",
+              "markdownDescription": "Cost per 1M output tokens."
+            },
+            "cacheRead": {
+              "type": "number",
+              "description": "Cost per 1M cached input tokens read.",
+              "markdownDescription": "Cost per 1M cached input tokens read."
+            },
+            "cacheWrite": {
+              "type": "number",
+              "description": "Cost per 1M cached input tokens written.",
+              "markdownDescription": "Cost per 1M cached input tokens written."
+            }
+          },
+          "additionalProperties": false
+        },
         "variants": {
           "type": "object",
           "description": "Named payload presets for this model. Merged with built-in variants; same-name entries override built-ins. Setting a variant to {} removes that built-in variant.",
@@ -621,10 +774,22 @@
           "examples": ["code", "plan", "explorer"]
         },
         "mode": {
-          "type": "string",
-          "description": "Agent mode. 'primary' for standalone agents, 'subagent' for agent-spawnable agents.",
-          "markdownDescription": "Agent mode. 'primary' for standalone agents, 'subagent' for agent-spawnable agents.",
-          "enum": ["primary", "subagent"]
+          "description": "Roles this agent can be used in. Accepts either a single string ('primary' or 'subagent') or a list (e.g. ['primary', 'subagent']). 'primary' means selectable as a chat agent; 'subagent' means spawnable by another agent. Defaults to both when absent.",
+          "markdownDescription": "Roles this agent can be used in. Accepts either a single string (`\"primary\"` or `\"subagent\"`) or a list (e.g. `[\"primary\", \"subagent\"]`). `primary` means selectable as a chat agent; `subagent` means spawnable by another agent. Defaults to both when absent.",
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": ["primary", "subagent"]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["primary", "subagent"]
+              },
+              "uniqueItems": true
+            }
+          ]
         },
         "description": {
           "type": "string",
@@ -696,16 +861,40 @@
             "sessionEnd",
             "chatStart",
             "chatEnd",
+            "chatStatusChanged",
+            "subagentStart",
+            "subagentPostRequest",
             "preRequest",
             "postRequest",
+            "preCompact",
+            "postCompact",
             "preToolCall",
             "postToolCall"
           ]
         },
-        "matcher": {
+        "description": {
           "type": "string",
-          "description": "Regex pattern for matching server__tool-name. Only for *ToolCall hook types.",
-          "markdownDescription": "Regex pattern for matching server__tool-name. Only for *ToolCall hook types."
+          "description": "Brief explanation of the hook's purpose, shown by /hooks.",
+          "markdownDescription": "Brief explanation of the hook's purpose, shown by `/hooks`."
+        },
+        "matcher": {
+          "description": "Matches *ToolCall hooks or compact hooks; unmatched hooks are skipped. For tool hooks, strings are legacy regex against server__tool-name and objects are tool selector maps with optional argsMatchers. For compact hooks, strings are exact matches against the triggered value (manual or auto); omitted matcher runs for both.",
+          "markdownDescription": "Matches `*ToolCall` hooks or compact hooks; unmatched hooks are skipped. For tool hooks, **String** is a legacy regex against `server__tool-name` and **Object** is a tool selector map with optional `argsMatchers`. For compact hooks, strings are matched as exact strings against the `triggered` value (`manual` or `auto`); omitted matcher runs for both.",
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "Tool hooks: regex pattern for matching server__tool-name. Compact hooks: exact triggered value (manual or auto).",
+              "markdownDescription": "Tool hooks: regex pattern for matching `server__tool-name`. Compact hooks: exact `triggered` value (`manual` or `auto`)."
+            },
+            {
+              "type": "object",
+              "description": "Tool selector map. Keys follow toolApproval selectors: full tool name (server__tool-name), native ECA tool name, or server name. Empty rule {} matches without argument filtering.",
+              "markdownDescription": "Tool selector map. Keys follow `toolApproval` selectors: full tool name (`server__tool-name`), native ECA tool name, or server name. Empty rule `{}` matches without argument filtering.",
+              "additionalProperties": {
+                "$ref": "#/definitions/hookMatcherEntry"
+              }
+            }
+          ]
         },
         "visible": {
           "type": "boolean",
@@ -958,6 +1147,25 @@
       },
       "additionalProperties": false
     },
+    "hookMatcherEntry": {
+      "type": "object",
+      "description": "Hook matcher rule. Use argsMatchers to require argument values to match Java regex patterns.",
+      "markdownDescription": "Hook matcher rule. Use `argsMatchers` to require argument values to match Java regex patterns.",
+      "properties": {
+        "argsMatchers": {
+          "type": "object",
+          "description": "Tool argument name to Java regex alternatives. Every listed argument must exist and match at least one pattern.",
+          "markdownDescription": "Tool argument name to Java regex alternatives. Every listed argument must exist and match at least one pattern.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "mcpServer": {
       "type": "object",
       "description": "MCP server configuration. Use 'url' for remote HTTP servers or 'command' for stdio servers.",
@@ -1020,6 +1228,16 @@
           "maximum": 65535,
           "description": "Fixed port for the OAuth callback server. Required by providers like Slack that mandate pre-registered redirect URIs. When set, the callback uses HTTPS with a bundled localhost certificate. Register https://localhost:<port>/auth/callback as the redirect URI in your OAuth app.",
           "markdownDescription": "Fixed port for the OAuth callback server. Required by providers like Slack that mandate pre-registered redirect URIs. When set, the callback uses HTTPS with a bundled localhost certificate. Register `https://localhost:<port>/auth/callback` as the redirect URI in your OAuth app."
+        },
+        "clientName": {
+          "type": "string",
+          "description": "Override the client_name sent during OAuth Dynamic Client Registration. Required for servers that allowlist clients by name (e.g. Figma). Defaults to 'ECA (Editor Code Assistant)' when not set.",
+          "markdownDescription": "Override the `client_name` sent during OAuth Dynamic Client Registration. Required for servers that allowlist clients by name (e.g. Figma). Defaults to `ECA (Editor Code Assistant)` when not set."
+        },
+        "authScope": {
+          "type": "string",
+          "description": "Controls how the OAuth token for this server is shared across projects. 'global' (default): one token shared everywhere. 'workspace': a separate token per workspace folder set, so authenticating different accounts in different projects does not clobber each other. Any other value defines a named bucket shared by every project that uses the same value. Like other config values, supports dynamic-string interpolation (${env:...}, ${file:...}, ${cmd:...}, etc.).",
+          "markdownDescription": "Controls how the OAuth token for this server is shared across projects. `global` (default): one token shared everywhere. `workspace`: a separate token per workspace folder set, so authenticating different accounts in different projects does not clobber each other. Any other value defines a named bucket shared by every project that uses the same value. Like other config values, supports dynamic-string interpolation (`${env:...}`, `${file:...}`, `${cmd:...}`, etc.)."
         }
       },
       "additionalProperties": false

@@ -23,7 +23,7 @@
 <meta name="twitter:image" content="{{ og_image }}" />
 
 <!-- Additional SEO -->
-<meta name="keywords" content="AI pair programming, code assistant, open source, LLM, VS Code, Emacs, Neovim, IntelliJ, Copilot alternative, OpenAI, Anthropic, Ollama, MCP, editor agnostic, AI coding" />
+<meta name="keywords" content="AI pair programming, code assistant, open source, LLM, VS Code, Emacs, Neovim, IntelliJ, Desktop, Copilot alternative, OpenAI, Anthropic, Ollama, MCP, editor agnostic, AI coding" />
 <link rel="canonical" href="{{ page_url }}" />
 <meta name="google-site-verification" content="lpupnLMIN7V027EZqCPyBz9RafDE95tVbSxi5ocQIwA" />
 
@@ -431,7 +431,8 @@
   #eca-tab-emacs:checked ~ .eca-editors__tabs label[for="eca-tab-emacs"],
   #eca-tab-vscode:checked ~ .eca-editors__tabs label[for="eca-tab-vscode"],
   #eca-tab-neovim:checked ~ .eca-editors__tabs label[for="eca-tab-neovim"],
-  #eca-tab-intellij:checked ~ .eca-editors__tabs label[for="eca-tab-intellij"] {
+  #eca-tab-intellij:checked ~ .eca-editors__tabs label[for="eca-tab-intellij"],
+  #eca-tab-desktop:checked ~ .eca-editors__tabs label[for="eca-tab-desktop"] {
     background: var(--eca-tab-active-bg);
     color: var(--eca-tab-active-color);
     border-color: var(--eca-tab-active-border);
@@ -446,16 +447,20 @@
   .eca-editors__panel {
     grid-area: 1 / 1;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.25s ease, visibility 0s linear 0.25s;
   }
 
   #eca-tab-emacs:checked   ~ .eca-editors__panels .eca-editors__panel--emacs,
   #eca-tab-vscode:checked  ~ .eca-editors__panels .eca-editors__panel--vscode,
   #eca-tab-neovim:checked  ~ .eca-editors__panels .eca-editors__panel--neovim,
-  #eca-tab-intellij:checked ~ .eca-editors__panels .eca-editors__panel--intellij {
+  #eca-tab-intellij:checked ~ .eca-editors__panels .eca-editors__panel--intellij,
+  #eca-tab-desktop:checked ~ .eca-editors__panels .eca-editors__panel--desktop {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
+    transition: opacity 0.25s ease, visibility 0s linear 0s;
   }
 
   .eca-editors__panel-frame {
@@ -881,8 +886,9 @@
   .eca-showcase__slide {
     grid-area: 1 / 1;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2.5rem;
@@ -898,7 +904,9 @@
   #eca-sc-7:checked ~ .eca-showcase__slides .eca-showcase__slide--7,
   #eca-sc-8:checked ~ .eca-showcase__slides .eca-showcase__slide--8 {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
+    transition: opacity 0.3s ease, visibility 0s linear 0s;
   }
 
   .eca-showcase__text {
@@ -1422,15 +1430,15 @@
   {%- endmacro %}
 
   {# ── Editor panel macro ── #}
-  {% macro editor_panel(id, title, img_src, img_alt, plugin_url, plugin_name, icon_svg) -%}
+  {% macro editor_panel(id, title, img_src, img_alt, cta_text) -%}
     <div class="eca-editors__panel eca-editors__panel--{{ id }}">
       <div class="eca-editors__panel-frame">
         {{ editor_chrome(title) }}
         <img src="{{ img_src }}" alt="{{ img_alt }}">
       </div>
-      <a href="{{ plugin_url }}" class="eca-editors__panel-link" target="_blank">
-        View {{ plugin_name }} plugin
-        {{ icon_external_link() }}
+      <a href="install/#{{ id }}" class="eca-editors__panel-link">
+        {{ cta_text }}
+        {{ icon_chevron_right() }}
       </a>
     </div>
   {%- endmacro %}
@@ -1479,7 +1487,7 @@
           through a well-defined protocol &mdash; giving you the best AI coding experience everywhere.
         </p>
         <div class="eca-hero__actions">
-          <a href="config/introduction" class="eca-btn eca-btn--primary">
+          <a href="install" class="eca-btn eca-btn--primary">
             <svg viewBox="0 0 24 24"><path d="M13 5v6h1.17L12 13.17 9.83 11H11V5h2m2-2H9v6H5l7 7 7-7h-4V3zm4 15H5v2h14v-2z"/></svg>
             Get Started
           </a>
@@ -1496,6 +1504,7 @@
         <input type="radio" name="eca-editor" id="eca-tab-vscode">
         <input type="radio" name="eca-editor" id="eca-tab-neovim">
         <input type="radio" name="eca-editor" id="eca-tab-intellij">
+        <input type="radio" name="eca-editor" id="eca-tab-desktop">
 
         <div class="eca-editors__tabs">
           <label for="eca-tab-emacs" class="eca-editors__tab">
@@ -1514,25 +1523,28 @@
             <svg viewBox="0 0 24 24"><path d="M2.214 4.954v13.615L7.2 24V10.314L14.863 19.6h.075l4.848-5.37V2.086l-4.985 5.2V0z"/></svg>
             Neovim
           </label>
+          <label for="eca-tab-desktop" class="eca-editors__tab">
+            <svg viewBox="0 0 24 24"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H3V4h18v10z"/></svg>
+            Desktop
+          </label>
         </div>
 
         <div class="eca-editors__panels">
           {{ editor_panel("emacs", "ECA &mdash; Emacs",
              "https://raw.githubusercontent.com/editor-code-assistant/eca-emacs/master/demo.gif",
-             "ECA running in Emacs",
-             "https://github.com/editor-code-assistant/eca-emacs", "eca-emacs") }}
+             "ECA running in Emacs", "Install in Emacs") }}
           {{ editor_panel("vscode", "ECA &mdash; VS Code",
              "https://raw.githubusercontent.com/editor-code-assistant/eca-vscode/master/demo.gif",
-             "ECA running in VS Code",
-             "https://github.com/editor-code-assistant/eca-vscode", "eca-vscode") }}
+             "ECA running in VS Code", "Install in VS Code") }}
           {{ editor_panel("intellij", "ECA &mdash; IntelliJ",
              "https://raw.githubusercontent.com/editor-code-assistant/eca-intellij/master/demo.gif",
-             "ECA running in IntelliJ",
-             "https://github.com/editor-code-assistant/eca-intellij", "eca-intellij") }}
+             "ECA running in IntelliJ", "Install in IntelliJ") }}
           {{ editor_panel("neovim", "ECA &mdash; Neovim",
              "https://raw.githubusercontent.com/editor-code-assistant/eca-nvim/master/demo.png",
-             "ECA running in Neovim",
-             "https://github.com/editor-code-assistant/eca-nvim", "eca-nvim") }}
+             "ECA running in Neovim", "Install in Neovim") }}
+          {{ editor_panel("desktop", "ECA &mdash; Desktop",
+             "https://raw.githubusercontent.com/editor-code-assistant/eca-desktop/master/demo.gif",
+             "ECA running as a Desktop app", "Install Desktop version") }}
         </div>
       </div>
 
