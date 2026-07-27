@@ -3032,7 +3032,7 @@ Used for broader questions or continuous discussion of project/files.</p>
 <span class="cm"> */</span>
 <span class="kr">type</span><span class="w"> </span><span class="nx">Model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 
-<span class="kr">type</span><span class="w"> </span><span class="nx">ChatContext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">FileContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">DirectoryContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">WebContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">RepoMapContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">CursorContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">McpResourceContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">ImageContext</span><span class="p">;</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">ChatContext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">FileContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">DirectoryContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">WebContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">RepoMapContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">CursorContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">McpResourceContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">ImageContext</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">TextContext</span><span class="p">;</span>
 
 <span class="cm">/**</span>
 <span class="cm"> * Context related to a file in the workspace</span>
@@ -3097,6 +3097,29 @@ Used for broader questions or continuous discussion of project/files.</p>
 <span class="cm">     * Raw base64-encoded image bytes (no `data:` URL prefix).</span>
 <span class="cm">     */</span>
 <span class="w">    </span><span class="nx">base64</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Inline text context supplied by the client.</span>
+<span class="cm"> *</span>
+<span class="cm"> * Use this when the content has no filesystem path the server can read,</span>
+<span class="cm"> * e.g. editor buffers (compile/terminal output), untitled documents or</span>
+<span class="cm"> * pasted text. The server delivers it with the user message (like images),</span>
+<span class="cm"> * not the system prompt, so clients should send fresh content on each</span>
+<span class="cm"> * prompt.</span>
+<span class="cm"> */</span>
+<span class="kd">interface</span><span class="w"> </span><span class="nx">TextContext</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;text&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Display name for this content (e.g. a buffer/terminal name).</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * The raw text content.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="cm">/**</span>
@@ -3473,6 +3496,63 @@ Used for broader questions or continuous discussion of project/files.</p>
 <span class="cm">         */</span>
 <span class="w">        </span><span class="nx">output</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * The percentage of the model context window at which the server will</span>
+<span class="cm">     * automatically compact (summarize) the conversation. Absent when</span>
+<span class="cm">     * auto-compaction is disabled. Clients can render it as a threshold</span>
+<span class="cm">     * marker on the usage bar.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">autoCompactPercentage?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Provider-agnostic estimate of how the context window is occupied,</span>
+<span class="cm">     * broken down by category. Useful to render a context-usage bar.</span>
+<span class="cm">     * Per-category values are estimates (~4 chars/token); when the provider</span>
+<span class="cm">     * reports authoritative usage they are scaled to sum to `usedTokens`.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">contextBreakdown</span><span class="o">?:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="cm">/**</span>
+<span class="cm">         * Occupied categories, in display order (e.g. &quot;System prompt&quot;,</span>
+<span class="cm">         * &quot;Tool definitions&quot;, &quot;Tool use &amp; results&quot;, &quot;Conversation&quot;).</span>
+<span class="cm">         */</span>
+<span class="w">        </span><span class="nx">categories</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">            </span><span class="nx">tokens</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">            </span><span class="cm">/**</span>
+<span class="cm">             * Canonical color (hex, e.g. &quot;#61afef&quot;) for this category. The</span>
+<span class="cm">             * server is the source of truth so all clients render the same</span>
+<span class="cm">             * colors; clients should use it to color their usage bar/legend.</span>
+<span class="cm">             */</span>
+<span class="w">            </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">            </span><span class="cm">/**</span>
+<span class="cm">             * Canonical emoji swatch (e.g. &quot;🟦&quot;) for this category, aligned</span>
+<span class="cm">             * with `color`. Used in plain-text legends (e.g. the `/context`</span>
+<span class="cm">             * command) where colors cannot be rendered.</span>
+<span class="cm">             */</span>
+<span class="w">            </span><span class="nx">emoji</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}[];</span>
+<span class="w">        </span><span class="cm">/**</span>
+<span class="cm">         * Total occupied tokens (sum of categories).</span>
+<span class="cm">         */</span>
+<span class="w">        </span><span class="nx">usedTokens</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">        </span><span class="cm">/**</span>
+<span class="cm">         * Remaining tokens in the context window. Absent when unknown.</span>
+<span class="cm">         */</span>
+<span class="w">        </span><span class="nx">freeTokens?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">        </span><span class="cm">/**</span>
+<span class="cm">         * The model context window size in tokens. Absent when unknown.</span>
+<span class="cm">         */</span>
+<span class="w">        </span><span class="nx">contextLimit?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">        </span><span class="cm">/**</span>
+<span class="cm">         * Canonical color (hex) for the free/unused portion of the window.</span>
+<span class="cm">         */</span>
+<span class="w">        </span><span class="nx">freeColor?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">        </span><span class="cm">/**</span>
+<span class="cm">         * Canonical emoji swatch for the free/unused portion of the window.</span>
+<span class="cm">         */</span>
+<span class="w">        </span><span class="nx">freeEmoji?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 
 <span class="cm">/**</span>
@@ -3719,7 +3799,7 @@ Used for broader questions or continuous discussion of project/files.</p>
 
 <span class="kr">type</span><span class="w"> </span><span class="nx">ToolCallOrigin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;mcp&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;native&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;server&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">;</span>
 
-<span class="kr">type</span><span class="w"> </span><span class="nx">ToolCallDetails</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">FileChangeDetails</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">JsonOutputsDetails</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">SubagentDetails</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">TaskDetails</span><span class="p">;</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">ToolCallDetails</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">FileChangeDetails</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">JsonOutputsDetails</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">SubagentDetails</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">TaskDetails</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">ShellCommandDetails</span><span class="p">;</span>
 
 <span class="kd">interface</span><span class="w"> </span><span class="nx">FileChangeDetails</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;fileChange&#39;</span><span class="p">;</span>
@@ -3864,6 +3944,53 @@ Used for broader questions or continuous discussion of project/files.</p>
 <span class="p">}</span>
 
 <span class="cm">/**</span>
+<span class="cm"> * Breakdown of a shell command tool call.</span>
+<span class="cm"> * Present when the server could safely parse the command; clients can use it</span>
+<span class="cm"> * to show what an &quot;approve &amp; remember&quot; would remember.</span>
+<span class="cm"> */</span>
+<span class="kd">interface</span><span class="w"> </span><span class="nx">ShellCommandDetails</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;shellCommand&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * The individual commands extracted from the shell invocation.</span>
+<span class="cm">     * Chained commands (&amp;&amp;, ||, ;, |) are split into separate entries.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">commands</span><span class="o">:</span><span class="w"> </span><span class="kt">ShellCommandBreakdown</span><span class="p">[];</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Whether the command runs in background as a job.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">background?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">interface</span><span class="w"> </span><span class="nx">ShellCommandBreakdown</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * The command being executed, e.g. &quot;ls&quot;, &quot;git&quot;.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">command</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * All arguments to the command, including flags.</span>
+<span class="cm">     * e.g. [&quot;-la&quot;, &quot;*.clj&quot;] for &quot;ls -la *.clj&quot;.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">args</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * The key that &quot;approve &amp; remember&quot; would remember for this command,</span>
+<span class="cm">     * e.g. &quot;git checkout&quot; or &quot;rg&quot;. Absent when this command can never be</span>
+<span class="cm">     * auto-approved (wrapper commands like sudo/xargs, file output</span>
+<span class="cm">     * redirections, dynamic command words).</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">approvalKey?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Whether approvalKey is already remembered for this session.</span>
+<span class="cm">     * Only present when approvalKey is present.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">remembered?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
 <span class="cm"> * Extra information about a chat</span>
 <span class="cm"> */</span>
 <span class="kd">interface</span><span class="w"> </span><span class="nx">ChatMetadataContent</span><span class="w"> </span><span class="p">{</span>
@@ -3910,6 +4037,8 @@ This will execute the tool call and continue the LLM chat loop.</p>
 
 <span class="w">    </span><span class="cm">/**</span>
 <span class="cm">     * The approach to save this tool call.</span>
+<span class="cm">     * For tools with granular approval (eca shell_command and git), &#39;session&#39; remembers</span>
+<span class="cm">     * the specific approved commands (e.g. &quot;git checkout&quot;) instead of the whole tool.</span>
 <span class="cm">     */</span>
 <span class="w">    </span><span class="nx">save</span><span class="o">?:</span><span class="w"> </span><span class="s1">&#39;session&#39;</span><span class="p">;</span>
 
@@ -4458,13 +4587,17 @@ default, falling back to <code>createdAt</code> when <code>updatedAt</code> is m
 in the UI. The server replays the chat by emitting <code>chat/cleared</code> (messages),
 <code>chat/opened</code>, and a sequence of <code>chat/contentReceived</code> notifications matching
 the persisted messages. When the persisted chat has a stored model the server
-additionally emits a <code>config/updated</code> notification to realign the client's
-selected model (and available variants) with the resumed chat, so the next
-prompt keeps using the chat's original provider/model. The same notification
-also carries <code>selectTrust</code> reflecting the resumed chat's trust toggle, so the
-client indicator stays in sync with the auto-approval behavior the server will
-apply. Typically used after <code>chat/list</code> when the user selects a chat that has
-not been opened in the current client session.</p>
+additionally emits a <code>config/updated</code> notification scoped with the opened
+<code>chatId</code> to realign that chat's selected model (and available variants), so the
+next prompt keeps using the chat's original provider/model without changing
+other chats or session defaults. A second scoped update carries <code>selectTrust</code>
+reflecting the resumed chat's trust toggle, so the client indicator stays in
+sync with the auto-approval behavior the server will apply. The response also
+returns these values together with the effective agent in one atomic
+<code>selection</code> snapshot; clients should prefer it when available and may retain
+the scoped notifications as backward-compatible updates. Typically used after
+<code>chat/list</code> when the user selects a chat that has not been opened in the current
+client session.</p>
 <p>By default the full history is replayed. A client may instead pass the optional
 <code>limit</code>/<code>before</code>/<code>after</code> window parameters (same cursors as <code>chat/history</code>) to
 replay only the newest page and avoid streaming a large history; in that case
@@ -4507,6 +4640,18 @@ the response carries <code>meta</code> so the client can page older via <code>ch
 
 <span class="w">    </span><span class="cm">/** The chat title at the time of replay, when available. */</span>
 <span class="w">    </span><span class="nx">title?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Atomic effective selection for the opened chat. A missing or unavailable</span>
+<span class="cm">     * persisted model is represented as null with no variants selected.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nx">selection</span><span class="o">?:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">agent</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">variant</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">variants</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span>
+<span class="w">        </span><span class="nx">trust</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="w">    </span><span class="p">};</span>
 
 <span class="w">    </span><span class="cm">/** Pagination metadata, present only when window params were supplied. */</span>
 <span class="w">    </span><span class="nx">meta?</span><span class="o">:</span><span class="w"> </span><span class="kt">ChatHistoryMeta</span><span class="p">;</span>
@@ -5010,9 +5155,9 @@ Clients should update UI accordingly, if a field is missing/null, means it had n
 <span class="cm">         * should forcefully update the chat trust indicator (and any</span>
 <span class="cm">         * derived UI like a shield/flame icon) to match this value.</span>
 <span class="cm">         *</span>
-<span class="cm">         * Server returns this on chat resume (`chat/open`, `/resume`) so the</span>
-<span class="cm">         * client&#39;s indicator matches the auto-approval behavior the server</span>
-<span class="cm">         * will apply for subsequent tool calls in the resumed chat.</span>
+<span class="cm">         * Server returns this in a chat-scoped update on chat restore</span>
+<span class="cm">         * (`chat/open`, `/resume`, `/import`) so the client&#39;s indicator matches</span>
+<span class="cm">         * the auto-approval behavior for that chat without changing others.</span>
 <span class="cm">         */</span>
 <span class="w">        </span><span class="nx">selectTrust?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
 
@@ -5802,7 +5947,7 @@ Clients can track all tasks to derive aggregate initialization progress.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 13, 2026 15:56:27 UTC">June 13, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 24, 2026 19:47:13 UTC">July 24, 2026</span>
   </span>
 
     

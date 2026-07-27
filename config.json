@@ -113,8 +113,8 @@
     },
     "disabledTools": {
       "type": "array",
-      "description": "List of tool names to disable globally.",
-      "markdownDescription": "List of tool names to disable globally.",
+      "description": "Tools to disable globally. Each entry matches a builtin tool name or regex (no eca__ prefix needed), an exact MCP server name (disables all its tools), or a regex against the tool full name server__tool.",
+      "markdownDescription": "Tools to disable globally. Each entry matches a builtin tool name or regex (no `eca__` prefix needed), an exact MCP server name (disables all its tools), or a regex against the tool full name `server__tool`.",
       "items": {
         "type": "string"
       }
@@ -349,6 +349,12 @@
           "description": "Whether new chats start in trust mode, auto-accepting all tool calls (never overriding deny). Applies to all editors.",
           "markdownDescription": "Whether new chats start in trust mode, auto-accepting all tool calls (never overriding `deny`). Applies to all editors.",
           "default": false
+        },
+        "autoSyncSystemPrompt": {
+          "type": "boolean",
+          "description": "Whether existing chats pick up system prompt changes (AGENTS.md, rules, prompts) mid-chat, invalidating the LLM prompt cache. When false (default), changes apply only to new chats; use the /sync-system-prompt command to apply to the current chat. Skill catalog changes never auto-sync (skill contents are always read fresh when loaded).",
+          "markdownDescription": "Whether existing chats pick up system prompt changes (`AGENTS.md`, rules, prompts) mid-chat, invalidating the LLM prompt cache. When `false` (default), changes apply only to new chats; use the `/sync-system-prompt` command to apply to the current chat. Skill catalog changes never auto-sync (skill contents are always read fresh when loaded).",
+          "default": false
         }
       }
     },
@@ -444,6 +450,34 @@
           "type": "string",
           "description": "Auth token for Bearer authentication. When unset, a 32-byte hex token is auto-generated and logged to stderr.",
           "markdownDescription": "Auth token for Bearer authentication. When unset, a 32-byte hex token is auto-generated and logged to stderr."
+        },
+        "tls": {
+          "type": "object",
+          "description": "HTTPS certificate for the remote server (a *.local.eca.dev wildcard). By default ECA fetches it from tls.eca.dev and caches it under the cache dir; set certFile/keyFile to use your own, or certUrl/keyUrl to override the fetch source.",
+          "markdownDescription": "HTTPS certificate for the remote server (a `*.local.eca.dev` wildcard). By default ECA fetches it from `tls.eca.dev` and caches it under the cache dir; set `certFile`/`keyFile` to use your own, or `certUrl`/`keyUrl` to override the fetch source.",
+          "additionalProperties": false,
+          "properties": {
+            "certFile": {
+              "type": "string",
+              "description": "Path to a PEM certificate chain to use instead of fetching. Requires keyFile.",
+              "markdownDescription": "Path to a PEM certificate chain to use instead of fetching. Requires `keyFile`."
+            },
+            "keyFile": {
+              "type": "string",
+              "description": "Path to the PKCS#8 PEM private key matching certFile.",
+              "markdownDescription": "Path to the PKCS#8 PEM private key matching `certFile`."
+            },
+            "certUrl": {
+              "type": "string",
+              "description": "Override URL to fetch the certificate chain from.",
+              "markdownDescription": "Override URL to fetch the certificate chain from."
+            },
+            "keyUrl": {
+              "type": "string",
+              "description": "Override URL to fetch the private key from.",
+              "markdownDescription": "Override URL to fetch the private key from."
+            }
+          }
         }
       }
     },
@@ -622,6 +656,14 @@
             "okhttp"
           ]
         },
+        "extraHeaders": {
+          "type": "object",
+          "description": "Additional HTTP headers to include in all requests to this provider (completions and models list fetching). Model-level extraHeaders take precedence on conflicts.",
+          "markdownDescription": "Additional HTTP headers to include in all requests to this provider (completions and models list fetching). Model-level `extraHeaders` take precedence on conflicts.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
         "retryRules": {
           "type": "array",
           "description": "Custom retry rules. Each rule can match by HTTP status code and/or error text regex pattern. When matched, the request is retried with exponential backoff.",
@@ -651,6 +693,13 @@
             ],
             "additionalProperties": false
           }
+        },
+        "rateLimitMaxWaitSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 60,
+          "description": "Maximum total delay before retrying a provider rate limit, including ECA's one-second safety buffer. The delay is derived from retry-after or provider-specific reset data and defaults to a 60-second cap. When the total delay exceeds the cap, ECA gives up retrying and surfaces the reset time in the error.",
+          "markdownDescription": "Maximum total delay before retrying a provider rate limit, including ECA's one-second safety buffer. The delay is derived from `retry-after` or provider-specific reset data and defaults to a 60-second cap. When the total delay exceeds the cap, ECA gives up retrying and surfaces the reset time in the error."
         },
         "models": {
           "type": "object",
@@ -704,6 +753,12 @@
             "off"
           ],
           "default": "all"
+        },
+        "imageInput": {
+          "type": "boolean",
+          "description": "Whether this model accepts image input (vision). Useful for custom/local models models.dev doesn't know about.",
+          "markdownDescription": "Whether this model accepts image input (vision). Useful for custom/local models models.dev doesn't know about.",
+          "default": false
         },
         "limit": {
           "type": "object",
@@ -791,6 +846,25 @@
             }
           ]
         },
+        "spawnableBy": {
+          "description": "Primary agent name or names allowed to discover and spawn this agent as a subagent. Matching uses exact resolved agent IDs. When omitted or empty, every primary agent may spawn it. This does not affect primary-agent selectability.",
+          "markdownDescription": "Primary agent ID or IDs allowed to discover and spawn this agent as a subagent. Matching uses exact resolved agent IDs. When omitted or empty, every primary agent may spawn it. Restricted agents are filtered from `spawn_agent`, `/subagents`, and contextual diagnostics, and direct spawn attempts are enforced server-side. This does not affect whether `mode` includes `primary`. The field participates in normal agent inheritance/merge behavior.",
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          ],
+          "examples": ["duel", ["duel", "another-orchestrator"]]
+        },
         "description": {
           "type": "string",
           "description": "Description of this agent's purpose. Required for subagents — shown to the LLM so it knows when to spawn this agent. Supports dynamic strings like ${file:path} and ${classpath:path}.",
@@ -809,9 +883,9 @@
         },
         "defaultModel": {
           "type": "string",
-          "description": "Default model for this agent, overriding the global default.",
-          "markdownDescription": "Default model for this agent, overriding the global default.",
-          "examples": ["anthropic/claude-sonnet-4-6"]
+          "description": "Default model for this agent, overriding the global default. May be a full provider/model id or a bare model name resolved against the currently selected provider's models (provider-relative alias).",
+          "markdownDescription": "Default model for this agent, overriding the global default. May be a full `provider/model` id or a bare model name resolved against the currently selected provider's models (provider-relative alias).",
+          "examples": ["anthropic/claude-sonnet-4-6", "explorer-small"]
         },
         "variant": {
           "type": "string",
@@ -821,8 +895,8 @@
         },
         "disabledTools": {
           "type": "array",
-          "description": "Tools to disable for this agent.",
-          "markdownDescription": "Tools to disable for this agent.",
+          "description": "Tools to disable for this agent. Each entry matches a builtin tool name or regex (no eca__ prefix needed), an exact MCP server name (disables all its tools), or a regex against the tool full name server__tool.",
+          "markdownDescription": "Tools to disable for this agent. Each entry matches a builtin tool name or regex (no `eca__` prefix needed), an exact MCP server name (disables all its tools), or a regex against the tool full name `server__tool`.",
           "items": {
             "type": "string"
           }
